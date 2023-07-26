@@ -28,7 +28,7 @@ An IDL (Interface Definition Language) is a way to define how objects can be use
 
 In the code below, we have a snippet from the IDL of our program. Let's break down the `deposit` instruction:
 
-```
+```json
 {
   "instructions": [
     {
