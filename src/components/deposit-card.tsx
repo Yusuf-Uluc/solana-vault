@@ -28,15 +28,14 @@ import idl from "@/utils/idl.json";
 import { useToast } from "@/components/ui/use-toast";
 
 export function DepositCard() {
-  const { publicKey, connected, sendTransaction, signTransaction } =
-    useWallet();
+  const { publicKey, connected, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const provider = useSolanaProvider();
   const toast = useToast();
 
   const [userBalance, setUserBalance] = useState(0);
   const [vaultBalance, setVaultBalance] = useState(0);
-  const [amount, setAmount] = useState<number>();
+  const [amount, setAmount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [interactionsData, setInteractionsData] = useState<{
     totalDeposits: number;
@@ -85,7 +84,7 @@ export function DepositCard() {
         sig = await program.methods
           .deposit(new BN(amount! * LAMPORTS_PER_SOL))
           .accounts({
-            totalInteractionsCounter: counterPDA,
+            userInteractionsCounter: counterPDA,
             userVaultAccount: userVaultPDA, // The userVaultPDA is the public key of the user's vault account.
             systemProgram: SystemProgram.programId, //  The systemProgram is the public key of the system program (Constant).
             signer: publicKey, // The signer is the public key of our user.
@@ -96,7 +95,7 @@ export function DepositCard() {
         sig = await program.methods
           .withdraw(new BN(amount! * LAMPORTS_PER_SOL))
           .accounts({
-            totalInteractionsCounter: counterPDA,
+            userInteractionsCounter: counterPDA,
             userVaultAccount: userVaultPDA, // The userVaultPDA is the public key of the user's vault account.
             systemProgram: SystemProgram.programId, //  The systemProgram is the public key of the system program (Constant).
             signer: publicKey, // The signer is the public key of our user.
@@ -111,7 +110,6 @@ export function DepositCard() {
       });
 
       // After the transaction is sent we update the balances of the user and the vault.
-      await Promise.all([setBalances(), setInteractions()]);
     } catch (err) {
       console.log("Transaction Error: ", err);
       toast.toast({
@@ -138,34 +136,38 @@ export function DepositCard() {
     ]);
   };
 
-  const setInteractions = async () => {
-    if (!publicKey || !connected) return;
-
-    const counterPDA = getCounterPDA(publicKey);
-
-    const program = new Program<SolanaVault>(idl as any, programID, provider);
-
-    const data = await program.account.TotalInteractions.fetch(counterPDA);
-
-    setInteractionsData({
-      totalDeposits: data.totalDeposits.toNumber(),
-      totalWithdrawals: data.totalWithdrawals.toNumber(),
-    });
-  };
-
   useEffect(() => {
     // If the user is not connected we set the balances to 0.
-    if (connected === false) {
+    if (!connected || !publicKey || !provider) {
       setUserBalance(0);
       setVaultBalance(0);
       return;
-    }
-    if (!publicKey) return;
+    } else {
+      const counterPDA = getCounterPDA(publicKey);
 
-    // If the user is connected we fetch and set the balances and interactions.
-    setBalances();
-    setInteractions();
-  }, [publicKey, connected]);
+      const program = new Program<SolanaVault>(idl as any, programID, provider);
+
+      setBalances();
+
+      program.account.userInteractions
+        .subscribe(counterPDA, "processed")
+        .on("change", (data: { totalDeposits: BN; totalWithdrawals: BN }) => {
+          setBalances();
+          setInteractionsData({
+            totalDeposits: data.totalDeposits.toNumber(),
+            totalWithdrawals: data.totalWithdrawals.toNumber(),
+          });
+        });
+
+      // const listener = connection.onAccountChange(counterPDA, (info) => {
+      //   console.log("Account changed", info.data);
+      // });
+
+      // return () => {
+      //   connection.removeAccountChangeListener(listener);
+      // };
+    }
+  }, [publicKey, connected, provider]);
 
   return (
     <Card

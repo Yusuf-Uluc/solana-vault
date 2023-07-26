@@ -30,11 +30,7 @@ export type SolanaVault = {
       name: "deposit";
       accounts: [
         { name: "userVaultAccount"; isMut: true; isSigner: false },
-        {
-          name: "totalInteractionsCounter";
-          isMut: true;
-          isSigner: false;
-        },
+        { name: "userInteractionsCounter"; isMut: true; isSigner: false },
         { name: "signer"; isMut: true; isSigner: true },
         { name: "systemProgram"; isMut: false; isSigner: false }
       ];
@@ -44,11 +40,7 @@ export type SolanaVault = {
       name: "withdraw";
       accounts: [
         { name: "userVaultAccount"; isMut: true; isSigner: false },
-        {
-          name: "totalInteractionsCounter";
-          isMut: true;
-          isSigner: false;
-        },
+        { name: "userInteractionsCounter"; isMut: true; isSigner: false },
         { name: "signer"; isMut: true; isSigner: true },
         { name: "systemProgram"; isMut: false; isSigner: false }
       ];
@@ -56,9 +48,8 @@ export type SolanaVault = {
     }
   ];
   accounts: [
-    { name: "Vault"; type: { kind: "struct"; fields: [] } },
     {
-      name: "TotalInteractions";
+      name: "userInteractions";
       type: {
         kind: "struct";
         fields: [

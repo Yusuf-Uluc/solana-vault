@@ -16,7 +16,9 @@ export function useSolanaProvider(): Provider | undefined {
   useEffect(() => {
     if (connection && wallet && connected === true) {
       setProvider(
-        new AnchorProvider(connection, wallet, AnchorProvider.defaultOptions())
+        new AnchorProvider(connection, wallet, {
+          commitment: "confirmed",
+        })
       );
     }
   }, [connected]);
