@@ -216,7 +216,7 @@ The UI was built using Tailwind CSS and shadcn.
 
 ## Smart Contract
 
-```
+```rs
 use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
@@ -298,7 +298,7 @@ pub struct UserInteractions {
 
 ### Tests
 
-```
+```ts
 describe("Test", () => {
   const userVaultAccount = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("vault"), pg.wallet.publicKey.toBuffer()],
