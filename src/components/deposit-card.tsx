@@ -158,14 +158,6 @@ export function DepositCard() {
             totalWithdrawals: data.totalWithdrawals.toNumber(),
           });
         });
-
-      // const listener = connection.onAccountChange(counterPDA, (info) => {
-      //   console.log("Account changed", info.data);
-      // });
-
-      // return () => {
-      //   connection.removeAccountChangeListener(listener);
-      // };
     }
   }, [publicKey, connected, provider]);
 
