@@ -1,5 +1,4 @@
-import { AnchorProvider, Wallet } from "@coral-xyz/anchor";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
 export const programID = new PublicKey(
   "7MtYccqQ745U3ohVr6YVibhpvZCMHUer11BR69zYjrZw"
